@@ -223,18 +223,6 @@ const CheckoutPage = () => {
 
   const paymentMethods = [
     {
-      id: "online",
-      label: "Pay Online",
-      icon: CreditCard,
-      sublabel: "Pay securely via UPI, Cards, NetBanking",
-    },
-    {
-      id: "cash",
-      label: "Cash on Delivery",
-      icon: Wallet,
-      sublabel: "Pay via Cash/UPI on delivery",
-    },
-    {
       id: "pending",
       label: "Pay after seller accepts",
       icon: Clock,
