@@ -34,8 +34,48 @@ export const getDeliveryPartners = async (req, res) => {
       Delivery.countDocuments(query),
     ]);
 
+    const partnerIds = deliveryPartners.map(p => p._id);
+    
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const stats = await Order.aggregate([
+      {
+        $match: {
+          deliveryBoy: { $in: partnerIds },
+          orderStatus: "delivered"
+        }
+      },
+      {
+        $group: {
+          _id: "$deliveryBoy",
+          totalOrders: { $sum: 1 },
+          todayEarnings: {
+            $sum: {
+              $cond: [
+                { $gte: ["$createdAt", startOfToday] },
+                "$paymentBreakdown.riderPayoutTotal",
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
+
+    const statsMap = stats.reduce((acc, stat) => {
+      acc[stat._id.toString()] = stat;
+      return acc;
+    }, {});
+
+    const items = deliveryPartners.map(partner => ({
+      ...partner,
+      totalOrders: statsMap[partner._id.toString()]?.totalOrders || 0,
+      todayEarnings: statsMap[partner._id.toString()]?.todayEarnings || 0
+    }));
+
     return handleResponse(res, 200, "Delivery partners fetched successfully", {
-      items: deliveryPartners,
+      items,
       page,
       limit,
       total,

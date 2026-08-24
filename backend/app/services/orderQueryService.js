@@ -113,7 +113,7 @@ export async function fetchSellerOrdersPage({
       .limit(limit)
       .populate("customer", "name phone")
       .populate("items.product", "name mainImage price salePrice")
-      .populate("deliveryBoy", "name phone")
+      .populate("deliveryBoy", "name phone profileImage averageRating")
       .populate("seller", "shopName name")
       .lean(),
     Order.countDocuments(query),
@@ -517,8 +517,8 @@ export async function getOrderWithAccess(orderId, userId, role) {
     .populate("customer", "name email phone")
     .populate("items.product", "name mainImage price salePrice")
     .populate("returnItems.product", "name mainImage price salePrice")
-    .populate("deliveryBoy", "name phone vehicle")
-    .populate("returnDeliveryBoy", "name phone vehicle")
+    .populate("deliveryBoy", "name phone vehicle profileImage averageRating")
+    .populate("returnDeliveryBoy", "name phone vehicle profileImage averageRating")
     .populate("seller", "shopName name address phone location")
     .lean();
 
@@ -751,7 +751,7 @@ export async function getSellerReturns({
       .skip(skip)
       .limit(limit)
       .populate("customer", "name phone")
-      .populate("returnDeliveryBoy", "name phone")
+      .populate("returnDeliveryBoy", "name phone profileImage averageRating")
       .lean(),
     Order.countDocuments(query),
   ]);

@@ -39,7 +39,7 @@ const PosKeyboardShortcuts = ({
     }, [onNewBill, onFocusSearch, onHoldCart, onCheckout]);
 
     return (
-        <div className="bg-gray-800 text-gray-300 text-xs py-2 px-4 flex gap-6 justify-center border-t border-gray-700 w-full shrink-0">
+        <div className="bg-gray-800 text-gray-300 text-xs py-2 px-4 hidden md:flex gap-6 justify-center border-t border-gray-700 w-full shrink-0">
             <div className="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors" onClick={onNewBill}>
                 <span className="bg-gray-700 px-1.5 py-0.5 rounded text-white font-mono">F1</span>
                 <span>New Bill</span>

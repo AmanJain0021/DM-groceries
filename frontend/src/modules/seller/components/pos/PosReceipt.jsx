@@ -15,7 +15,7 @@ const PosReceipt = ({ order, onClose, onNewBill }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4 backdrop-blur-sm">
             <div className="bg-gray-100 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]">
                 
                 {/* Header */}
@@ -31,7 +31,7 @@ const PosReceipt = ({ order, onClose, onNewBill }) => {
 
                 {/* Receipt Preview */}
                 <div className="p-6 overflow-y-auto flex-1 flex flex-col items-center">
-                    <div className="bg-white p-6 shadow-sm w-full font-mono text-sm border-t-4 border-gray-800 relative">
+                    <div id="print-area" className="bg-white p-6 shadow-sm w-full font-mono text-sm border-t-4 border-gray-800 relative print-receipt-section">
                         {/* Receipt content */}
                         <div className="text-center mb-6">
                             <h2 className="font-bold text-xl mb-1">{order.address?.address || 'DM Groceries'}</h2>
@@ -127,17 +127,23 @@ const PosReceipt = ({ order, onClose, onNewBill }) => {
                 </div>
 
                 {/* Actions */}
-                <div className="bg-white p-4 flex gap-3 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-10">
+                <div className="bg-white p-4 flex gap-3 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-10 flex-wrap">
                     <button 
-                        onClick={handlePrint}
-                        className="flex-1 bg-blue-50 text-blue-600 font-medium py-3 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 border border-blue-200"
+                        onClick={() => window.print()}
+                        className="flex-1 min-w-[100px] bg-green-50 text-green-600 font-medium py-3 rounded-lg hover:bg-green-100 transition-colors flex items-center justify-center gap-2 border border-green-200"
                     >
                         <HiOutlinePrinter size={20} />
+                        Print
+                    </button>
+                    <button 
+                        onClick={handlePrint}
+                        className="flex-1 min-w-[120px] bg-blue-50 text-blue-600 font-medium py-3 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 border border-blue-200"
+                    >
                         Download PDF
                     </button>
                     <button 
                         onClick={handleDone}
-                        className="flex-1 bg-gray-900 text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                        className="flex-1 min-w-[120px] bg-gray-900 text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors"
                     >
                         New Bill (F1)
                     </button>

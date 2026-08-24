@@ -132,61 +132,27 @@ const DeliverySlideButton = ({
   };
 
   return (
-    <div className="relative h-16 bg-gray-100 rounded-full overflow-hidden select-none">
-      {/* Label text */}
-      <motion.div
-        className={`absolute inset-0 pl-14 flex items-center justify-center text-gray-400 font-bold text-sm pointer-events-none transition-opacity duration-300 ${dragX > 50 || isLoading ? "opacity-0" : "opacity-100"
-          }`}
-        animate={{ x: [0, 5, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}>
-        {label} <ChevronRight className="ml-1 inline" />
-      </motion.div>
-
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Loader2 className="animate-spin text-primary" size={24} />
-          <span className="ml-2 text-sm font-medium text-gray-600">
-            {isReturn ? "Requesting OTP..." : "Generating OTP..."}
-          </span>
-        </div>
+    <button
+      onClick={() => {
+        if (!isLoading) {
+          setIsSlideComplete(true);
+          handleSlideComplete();
+        }
+      }}
+      disabled={isLoading}
+      className={`w-full h-14 rounded-2xl flex items-center justify-center font-bold text-sm text-white shadow-md active:scale-[0.98] transition-all ${bgColor.replace("bg-black", "bg-gray-900")}`}
+    >
+      {isLoading ? (
+        <>
+          <Loader2 className="animate-spin mr-2" size={20} />
+          {isReturn ? "Requesting OTP..." : "Generating OTP..."}
+        </>
+      ) : (
+        <>
+          {label.replace("SLIDE TO ", "")}
+        </>
       )}
-
-      {/* Progress background */}
-      <motion.div
-        className={`absolute inset-y-0 left-0 ${bgColorLight} opacity-50`}
-        style={{ width: Math.min(dragX + 60, 340) }}
-      />
-
-      {/* Draggable button */}
-      <motion.div
-        className={`absolute top-1 bottom-1 left-1 w-14 rounded-full flex items-center justify-center shadow-md cursor-grab active:cursor-grabbing z-20 ${bgColor}`}
-        drag="x"
-        dragConstraints={{ left: 0, right: 280 }}
-        dragElastic={0.05}
-        dragMomentum={false}
-        onDrag={(_, info) => {
-          if (!isLoading) {
-            setDragX(Math.max(0, info.offset.x));
-          }
-        }}
-        onDragEnd={(_, info) => {
-          if (isLoading) return;
-
-          if (info.offset.x > 150) {
-            setIsSlideComplete(true);
-            handleSlideComplete();
-          } else {
-            setDragX(0);
-          }
-        }}
-        animate={{ x: isSlideComplete ? 280 : 0 }}
-        whileHover={{ scale: isLoading ? 1 : 1.05 }}
-        whileTap={{ scale: isLoading ? 1 : 0.95 }}
-        style={{ pointerEvents: isLoading ? "none" : "auto" }}>
-        <ChevronRight className="text-white" size={24} />
-      </motion.div>
-    </div>
+    </button>
   );
 };
 

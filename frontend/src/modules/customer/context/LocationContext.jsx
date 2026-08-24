@@ -288,8 +288,7 @@ export const LocationProvider = ({ children }) => {
     refreshAddresses();
   }, [refreshAddresses]);
 
-  // On mount: only restore from cache. Do NOT auto-fetch – browsers block the
-  // location prompt unless it's triggered by a user gesture (e.g. tap).
+  // On mount: restore from cache if available. If not, auto-fetch live location.
   useEffect(() => {
     const parsed = getJSON(STORAGE_KEY, null);
     const addressName = parsed?.address || parsed?.name;
@@ -298,23 +297,24 @@ export const LocationProvider = ({ children }) => {
         {
           name: addressName,
           time: parsed.time || "12-15 mins",
-          city: parsed.city,
-          state: parsed.state,
-          pincode: parsed.pincode,
+          city: parsed.city || "Indore",
+          state: parsed.state || "Madhya Pradesh",
+          pincode: parsed.pincode || "452018",
           latitude: parsed.latitude,
           longitude: parsed.longitude,
         },
         { persist: false, updateSavedHome: false },
       );
     } else {
-      // If no location is stored (or TTL expired), persist the default
-      // immediately so subsequent reads have something to anchor on.
-      updateLocation(currentLocation, {
-        persist: true,
-        updateSavedHome: false,
+      // Try to fetch live location if nothing is cached
+      fetchAndCacheLocation().catch(() => {
+        // If location fetch fails, persist the default immediately
+        updateLocation(currentLocation, {
+          persist: true,
+          updateSavedHome: false,
+        });
       });
     }
-    // Live fetch happens only when user taps location pill or "Use current location"
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -144,8 +144,10 @@ export const AuthProvider = ({ children }) => {
                                 return newData;
                             });
                         }
+                        setUser(null);
                     }
-                    setUser(null);
+                    // For network timeouts or 5xx errors, we retain the existing user state
+                    // to prevent spontaneous logouts in the UI.
                 } finally {
                     setIsLoading(false);
                 }

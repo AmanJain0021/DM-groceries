@@ -270,7 +270,7 @@ const POS = () => {
                     />
                     
                     {/* Billing Summary & Payment */}
-                    <div className="bg-white border-t border-gray-200 p-4 shrink-0 flex flex-col mt-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-20 max-h-[55vh] overflow-y-auto">
+                    <div className="bg-white border-t border-gray-200 p-4 shrink-0 flex flex-col mt-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-20 max-h-[50%] md:max-h-[60vh] overflow-y-auto">
                         {/* Totals */}
                         <div className="space-y-2 mb-2">
                             <div className="flex justify-between text-gray-500 text-sm">

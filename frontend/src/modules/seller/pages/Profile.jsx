@@ -48,6 +48,7 @@ import {
 const SellerProfile = () => {
   const { refreshEarnings } = useSellerEarnings();
   const [profile, setProfile] = useState(null);
+  const [statsData, setStatsData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -70,25 +71,23 @@ const SellerProfile = () => {
     }
   });
 
-  // Simulated metrics & data to fulfill requirements
-  const performanceData = [
-    { name: "Jan", revenue: 4000, orders: 240 },
-    { name: "Feb", revenue: 5500, orders: 320 },
-    { name: "Mar", revenue: 7800, orders: 450 },
-    { name: "Apr", revenue: 9000, orders: 580 },
-    { name: "May", revenue: 12000, orders: 710 },
-    { name: "Jun", revenue: 15400, orders: 890 },
-  ];
-
   useEffect(() => {
-    fetchProfile();
+    fetchData();
   }, []);
 
-  const fetchProfile = async () => {
+  const fetchData = async () => {
     try {
-      const response = await sellerApi.getProfile();
-      const data = response.data.result;
+      const [profileRes, statsRes] = await Promise.all([
+        sellerApi.getProfile(),
+        sellerApi.getStats()
+      ]);
+      
+      const data = profileRes.data.result;
       setProfile(data);
+      if (statsRes.data.success) {
+        setStatsData(statsRes.data.result);
+      }
+      
       setFormData({
         name: data.name,
         shopName: data.shopName,
@@ -107,7 +106,7 @@ const SellerProfile = () => {
         },
       });
     } catch (error) {
-      toast.error("Failed to fetch profile");
+      toast.error("Failed to fetch data");
     } finally {
       setIsLoading(false);
     }
@@ -170,7 +169,7 @@ const SellerProfile = () => {
       await sellerApi.updateProfile(payload);
       toast.success("Profile updated successfully");
       setIsEditing(false);
-      fetchProfile();
+      fetchData();
       refreshEarnings();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update profile");
@@ -195,6 +194,23 @@ const SellerProfile = () => {
     navigator.clipboard.writeText(shareUrl);
     toast.success("Profile link copied to clipboard!");
   };
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const performanceData = React.useMemo(() => {
+    const raw = statsData?.salesTrend ?? [];
+    const arr = Array.isArray(raw) ? raw : [];
+    if (arr.length > 0) {
+      return arr.map((d) => ({
+        name: d.name ?? d.date ?? "—",
+        revenue: Number(d.sales ?? d.revenue ?? d.total ?? 0) || 0,
+      }));
+    }
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return { name: dayNames[d.getDay()], revenue: 0 };
+    });
+  }, [statsData?.salesTrend]);
 
   if (isLoading) {
     return (
@@ -480,65 +496,65 @@ const SellerProfile = () => {
         </Card>
 
         {/* Security & Trust Card */}
-        <Card className="bg-[#154D1A] text-white p-6 md:p-8 rounded-[20px] shadow-[0_4px_25px_rgba(21,77,26,0.15)] flex flex-col justify-between">
+        <Card className="p-6 md:p-8 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-[20px] bg-white transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-200/60 mb-6 flex items-center justify-between">
-              <span>Security & Trust</span>
-              <Shield size={16} className="text-emerald-300" />
+            <h3 className="text-base font-bold text-slate-800 mb-6 flex items-center gap-2 pb-3 border-b border-slate-50">
+              <Shield size={18} className="text-[#154D1A]" />
+              Security & Trust
             </h3>
 
             <div className="space-y-5">
               {/* Row 1 */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-50">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-white shrink-0">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                     <CheckCircle size={16} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Verification</p>
-                    <p className="text-[10px] text-emerald-200/70">Verified Merchant</p>
+                    <p className="text-xs font-bold text-slate-700">Verification</p>
+                    <p className="text-[10px] text-slate-500">Verified Merchant</p>
                   </div>
                 </div>
                 <span className="bg-emerald-500 text-white rounded-full p-0.5 text-[8px]">✔️</span>
               </div>
 
               {/* Row 2 */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-50">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-white shrink-0">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                     <Shield size={16} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Identity Check</p>
-                    <p className="text-[10px] text-emerald-200/70">KYC Compliant</p>
+                    <p className="text-xs font-bold text-slate-700">Identity Check</p>
+                    <p className="text-[10px] text-slate-500">KYC Compliant</p>
                   </div>
                 </div>
                 <span className="bg-emerald-500 text-white rounded-full p-0.5 text-[8px]">✔️</span>
               </div>
 
               {/* Row 3 */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-50">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-white shrink-0">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                     <Rocket size={16} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Growth Tier</p>
-                    <p className="text-[10px] text-emerald-200/70">Premium Seller Level</p>
+                    <p className="text-xs font-bold text-slate-700">Growth Tier</p>
+                    <p className="text-[10px] text-slate-500">Premium Seller Level</p>
                   </div>
                 </div>
                 <span className="bg-emerald-500 text-white rounded-full p-0.5 text-[8px]">✔️</span>
               </div>
 
               {/* Row 4 */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-50">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-white shrink-0">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                     <Globe size={16} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Service Region</p>
-                    <p className="text-[10px] text-emerald-200/70">Pan India Delivery</p>
+                    <p className="text-xs font-bold text-slate-700">Service Region</p>
+                    <p className="text-[10px] text-slate-500">Pan India Delivery</p>
                   </div>
                 </div>
                 <span className="bg-emerald-500 text-white rounded-full p-0.5 text-[8px]">✔️</span>
@@ -547,12 +563,12 @@ const SellerProfile = () => {
               {/* Row 5 */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-white shrink-0">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                     <Star size={16} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Seller Rating</p>
-                    <p className="text-[10px] text-emerald-200/70">4.8 / 5.0 Rating</p>
+                    <p className="text-xs font-bold text-slate-700">Seller Rating</p>
+                    <p className="text-[10px] text-slate-500">4.8 / 5.0 Rating</p>
                   </div>
                 </div>
                 <span className="bg-emerald-500 text-white rounded-full p-0.5 text-[8px]">✔️</span>
@@ -727,10 +743,10 @@ const SellerProfile = () => {
       {/* ==================== FOURTH ROW (Statistics Cards) ==================== */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Orders", value: "128", icon: ShoppingBag, gradient: "from-emerald-500 to-teal-600" },
-          { label: "Revenue", value: "₹24.5K", icon: TrendingUp, gradient: "from-[#154D1A] to-[#2E7D32]" },
-          { label: "Customers", value: "2.4K+", icon: Users, gradient: "from-indigo-500 to-blue-600" },
-          { label: "Products", value: "48", icon: Award, gradient: "from-amber-500 to-orange-600" },
+          { label: "Orders", value: statsData?.overview?.totalOrders || "0", icon: ShoppingBag, gradient: "from-emerald-500 to-teal-600" },
+          { label: "Revenue", value: `₹${statsData?.overview?.totalSales || "0"}`, icon: TrendingUp, gradient: "from-[#154D1A] to-[#2E7D32]" },
+          { label: "Customers", value: statsData?.overview?.totalCustomers || "0", icon: Users, gradient: "from-indigo-500 to-blue-600" },
+          { label: "Products", value: statsData?.overview?.totalProducts || "0", icon: Award, gradient: "from-amber-500 to-orange-600" },
         ].map((stat, i) => (
           <motion.div
             key={i}
@@ -782,17 +798,17 @@ const SellerProfile = () => {
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Monthly Orders</span>
-                <p className="text-base font-bold text-slate-800 mt-0.5">890 Orders</p>
+                <p className="text-base font-bold text-slate-800 mt-0.5">{statsData?.overview?.totalOrders || 0} Orders</p>
               </div>
-              <span className="text-emerald-700 bg-emerald-50 text-[10px] font-bold px-2 py-0.5 rounded-full">+12% MoM</span>
+              <span className="text-emerald-700 bg-emerald-50 text-[10px] font-bold px-2 py-0.5 rounded-full">{statsData?.overview?.ordersTrend || "+0%"} MoM</span>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Revenue Growth</span>
-                <p className="text-base font-bold text-slate-800 mt-0.5">₹15,400</p>
+                <p className="text-base font-bold text-slate-800 mt-0.5">₹{statsData?.overview?.totalSales || 0}</p>
               </div>
-              <span className="text-emerald-700 bg-emerald-50 text-[10px] font-bold px-2 py-0.5 rounded-full">+18.5% Growth</span>
+              <span className="text-emerald-700 bg-emerald-50 text-[10px] font-bold px-2 py-0.5 rounded-full">{statsData?.overview?.salesTrend || "+0%"} Growth</span>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
@@ -845,7 +861,6 @@ const SellerProfile = () => {
             { label: "Wallet", icon: Wallet, path: "/seller/withdrawals" },
             { label: "Membership", icon: Zap, path: "#" },
             { label: "Reports", icon: BarChart3, path: "/seller/analytics" },
-            { label: "Support", icon: HelpCircle, path: "#" },
             { label: "Support", icon: FileText, path: "/seller/support" },
             { label: "Privacy", icon: Shield, path: "/seller/privacy" }
           ].map((act, idx) => (

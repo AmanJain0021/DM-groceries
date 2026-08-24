@@ -18,7 +18,7 @@ const generateToken = (customer) =>
     jwt.sign(
         { id: customer._id, role: "customer" },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: process.env.CUSTOMER_JWT_EXPIRES_IN || "365d" }
     );
 
 /* ===============================

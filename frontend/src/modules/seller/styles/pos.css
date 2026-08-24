@@ -1,6 +1,6 @@
 /* POS Specific Styles */
 .pos-layout {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background-color: #f3f4f6;

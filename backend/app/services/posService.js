@@ -132,8 +132,9 @@ export async function createPosOrder({
         onlineAmountPaid,
         receiptNumber,
         billedBy: sellerId,
+        posPaymentMode: paymentMode, // Save original POS payment mode here for reference
       },
-      paymentMode,
+      paymentMode: paymentMode === "ONLINE" ? "ONLINE" : "COD",
       paymentStatus: "PAID",
       status: "delivered",
       orderStatus: "delivered",

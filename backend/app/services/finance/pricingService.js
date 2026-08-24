@@ -283,13 +283,14 @@ export function calculateRiderPayout(distanceKm, deliverySettings) {
   const riderBase = roundCurrency(deliverySettings.riderBasePayout ?? deliverySettings.customerBaseDeliveryFee ?? 0);
   const baseDistance = Math.max(Number(deliverySettings.baseDistanceCapacityKm || 0), 0);
   const perExtraKm = roundCurrency(deliverySettings.deliveryPartnerRatePerKm ?? 0);
+  const riderBonus = roundCurrency(deliverySettings.riderPayoutBonus ?? 0);
 
   if (mode === DELIVERY_PRICING_MODE.FIXED_PRICE || normalizedDistance <= baseDistance) {
     return {
       riderPayoutBase: riderBase,
       riderPayoutDistance: 0,
-      riderPayoutBonus: 0,
-      riderPayoutTotal: riderBase,
+      riderPayoutBonus: riderBonus,
+      riderPayoutTotal: addMoney(riderBase, riderBonus),
       roundedExtraKm: 0,
     };
   }
@@ -297,13 +298,13 @@ export function calculateRiderPayout(distanceKm, deliverySettings) {
   const extraKm = normalizedDistance - baseDistance;
   const roundedExtraKm = ceilKm(extraKm);
   const riderDistance = roundCurrency(roundedExtraKm * perExtraKm);
-  const riderTotal = addMoney(riderBase, riderDistance);
+  const riderTotal = addMoney(riderBase, riderDistance) + riderBonus;
 
   return {
     riderPayoutBase: riderBase,
     riderPayoutDistance: riderDistance,
-    riderPayoutBonus: 0,
-    riderPayoutTotal: riderTotal,
+    riderPayoutBonus: riderBonus,
+    riderPayoutTotal: roundCurrency(riderTotal),
     roundedExtraKm,
   };
 }

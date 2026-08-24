@@ -926,8 +926,7 @@ const OrderDetailPage = () => {
               <p className="text-xs text-[#1A4516] font-medium leading-relaxed mb-4">
                 The seller has accepted your order! Please select how you would like to pay <span className="font-bold">₹{order.pricing.total}</span> to proceed.
               </p>
-              <div className="grid grid-cols-1 gap-3">
-                {/* 
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => handleSelectPaymentMethod("ONLINE")}
                   disabled={isProcessingPayment}
@@ -936,7 +935,6 @@ const OrderDetailPage = () => {
                   <CreditCard size={18} />
                   Pay Online
                 </button>
-                */}
                 <button
                   onClick={() => handleSelectPaymentMethod("COD")}
                   disabled={isProcessingPayment}
@@ -1001,6 +999,16 @@ const OrderDetailPage = () => {
                 status?.startsWith("return_")
                   ? order.returnDeliveryBoy?.vehicle?.plateNumber
                   : order.deliveryBoy?.vehicle?.plateNumber
+              }
+              riderImage={
+                status?.startsWith("return_")
+                  ? order.returnDeliveryBoy?.profileImage
+                  : order.deliveryBoy?.profileImage
+              }
+              riderRating={
+                status?.startsWith("return_")
+                  ? order.returnDeliveryBoy?.averageRating
+                  : order.deliveryBoy?.averageRating
               }
               riderLocation={liveLocation}
               sellerLocation={sellerLocation}
@@ -1337,7 +1345,7 @@ const OrderDetailPage = () => {
 
       {/* Return Request Modal */}
       {showReturnModal && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[600] flex items-center justify-center px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

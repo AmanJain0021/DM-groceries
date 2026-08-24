@@ -80,7 +80,7 @@ const DeliveryTracking = () => {
               phone: order.deliveryBoy.phone,
               avatar: order.deliveryBoy.name?.charAt(0) || "?",
               image: order.deliveryBoy.image || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop",
-              rating: order.deliveryBoy.rating || 4.5,
+              rating: order.deliveryBoy.averageRating || 0,
             } : {
               name: "Not Assigned",
               phone: "N/A",

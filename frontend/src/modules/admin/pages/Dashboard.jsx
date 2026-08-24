@@ -55,8 +55,34 @@ const AdminDashboard = () => {
         }
     };
 
+    const checkBirthdays = async () => {
+        try {
+            // Only check once per session to avoid spamming
+            if (sessionStorage.getItem('birthday_checked_today')) return;
+            
+            const res = await adminApi.getTodayBirthdays();
+            if (res.data.success && res.data.result) {
+                const b = res.data.result;
+                const total = (b.customers?.length || 0) + (b.sellers?.length || 0) + (b.deliveries?.length || 0);
+                if (total > 0) {
+                    toast.info(`🎉 Today is the birthday of ${total} user(s)!`, {
+                        duration: 8000,
+                        action: {
+                            label: 'View',
+                            onClick: () => navigate('/admin/birthdays')
+                        }
+                    });
+                }
+            }
+            sessionStorage.setItem('birthday_checked_today', 'true');
+        } catch (error) {
+            console.error("Failed to check birthdays:", error);
+        }
+    };
+
     useEffect(() => {
         fetchStats();
+        checkBirthdays();
     }, []);
 
     useEffect(() => {

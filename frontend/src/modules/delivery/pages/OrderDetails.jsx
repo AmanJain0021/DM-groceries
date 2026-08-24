@@ -602,9 +602,8 @@ const OrderDetails = () => {
 
   const isReturnWaitAccept = useMemo(() => {
     if (!order) return false;
-    const isReturn = order.returnStatus && order.returnStatus !== "none";
-    return isReturn && !order.returnDeliveryBoy;
-  }, [order]);
+    return isReturn && !order.returnDeliveryBoy && order.returnStatus === "return_pickup_assigned";
+  }, [order, isReturn]);
 
   // Determine current phase for map
   // Return: steps 1-2 = navigate to customer (pickup), steps 3-4 = navigate to seller (delivery)
@@ -1118,17 +1117,7 @@ const OrderDetails = () => {
           </AnimatePresence>
         </Card>
 
-        <motion.div
-          className="bg-yellow-50 rounded-2xl p-4 border border-yellow-200 flex items-start shadow-sm"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <AlertTriangle className="text-yellow-600 mr-3 mt-0.5 flex-shrink-0" size={18} />
-          <p className="text-sm text-yellow-800 leading-relaxed">
-            <strong>Note:</strong> Handle eggs with care. Call customer if location is hard to find.
-          </p>
-        </motion.div>
+
 
         {/* Return Step 2: Upload proof then request customer pickup OTP */}
         {isReturn && step === 2 && !showOtpInput && isAssignedRider && (
@@ -1278,60 +1267,29 @@ const OrderDetails = () => {
       {((isReturn && (step === 1 || step === 3) && isAssignedRider) || (!isReturn && step <= 2)) && !showSellerOtpInput && !showOtpInput && !showDropOtpInput && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)]">
           <div className="max-w-2xl mx-auto p-4">
-            <div className="relative h-16 bg-slate-100 rounded-full overflow-hidden select-none">
-              <motion.div
-                className={`absolute inset-0 pl-14 flex items-center justify-center font-bold text-lg pointer-events-none transition-opacity duration-300 ${!isSlideComplete && dragX > 50 ? "opacity-0" : "opacity-100"} ${isSlideComplete ? "text-brand-600" : "text-slate-400"}`}
-                animate={!isSlideComplete ? { x: [0, 5, 0] } : {}}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-              >
-                {isSlideComplete ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2" size={20} />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Slide to {
-                      isReturn
-                        ? step === 1 ? "ARRIVED AT CUSTOMER"
-                          : step === 3 ? "ARRIVED AT SELLER"
-                            : steps[step - 1]?.action
+            <button
+              onClick={() => {
+                setIsSlideComplete(true);
+                handleNextStep();
+              }}
+              disabled={isSlideComplete}
+              className={`w-full h-14 rounded-2xl flex items-center justify-center font-bold text-lg text-white shadow-md active:scale-[0.98] transition-all ${steps[step - 1].color || "bg-primary"}`}
+            >
+              {isSlideComplete ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" size={20} />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {isReturn
+                    ? step === 1 ? "ARRIVED AT CUSTOMER"
+                      : step === 3 ? "ARRIVED AT SELLER"
                         : steps[step - 1]?.action
-                    } <ChevronRight className="ml-1" />
-                  </>
-                )}
-              </motion.div>
-
-              <motion.div
-                className={`absolute inset-y-0 left-0 ${steps[step - 1].bg} opacity-50`}
-                style={{ width: dragX + 60 }}
-              />
-
-              <motion.div
-                className={`absolute top-1 bottom-1 left-1 w-14 rounded-full flex items-center justify-center shadow-md cursor-grab active:cursor-grabbing z-20 ${steps[step - 1].color || "bg-primary"
-                  }`}
-                drag="x"
-                dragConstraints={{ left: 0, right: 280 }}
-                dragElastic={0.05}
-                dragMomentum={false}
-                onDrag={(event, info) => {
-                  setDragX(info.point.x);
-                }}
-                onDragEnd={(event, info) => {
-                  if (info.offset.x > 150) {
-                    setIsSlideComplete(true);
-                    handleNextStep();
-                  } else {
-                    setDragX(0);
-                  }
-                }}
-                animate={{ x: isSlideComplete ? 280 : 0 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ChevronRight className="text-white" size={24} />
-              </motion.div>
-            </div>
+                    : steps[step - 1]?.action}
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}

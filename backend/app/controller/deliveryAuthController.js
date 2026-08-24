@@ -10,7 +10,7 @@ const generateToken = (delivery) =>
     jwt.sign(
         { id: delivery._id, role: "delivery" },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: process.env.DELIVERY_JWT_EXPIRES_IN || "365d" }
     );
 
 /* ===============================

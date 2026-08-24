@@ -109,12 +109,7 @@ const CheckoutPricingBreakdown = React.memo(function CheckoutPricingBreakdown({
             </span>
             <span className="font-black text-slate-800">₹{handlingFee}</span>
           </div>
-          <div className="flex justify-between items-center px-2">
-            <span className="text-slate-500 font-bold text-[13px] uppercase tracking-wider">
-              Tax
-            </span>
-            <span className="font-black text-slate-800">₹{taxAmount}</span>
-          </div>
+
 
           {selectedCoupon && (
             <motion.div

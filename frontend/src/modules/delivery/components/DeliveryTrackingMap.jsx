@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, Marker, OverlayView } from "@react-google-maps/api";
 import { Loader2 } from "lucide-react";
 import customerPin from "@/assets/customer-pin.png";
 import { deliveryApi } from "../services/deliveryApi";
@@ -56,6 +56,16 @@ function distanceMeters(from, to) {
     Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * r * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function getClosestPointOnSegment(p, p1, p2) {
+  const dx = p2.lng - p1.lng;
+  const dy = p2.lat - p1.lat;
+  if (dx === 0 && dy === 0) return p1;
+  const u = ((p.lng - p1.lng) * dx + (p.lat - p1.lat) * dy) / (dx * dx + dy * dy);
+  if (u < 0) return p1;
+  if (u > 1) return p2;
+  return { lat: p1.lat + u * dy, lng: p1.lng + u * dx };
 }
 
 function destinationForPhase(order, phase) {
@@ -139,12 +149,22 @@ const DeliveryTrackingMapComponent = ({
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         const accuracy = pos.coords.accuracy;
-        const heading = pos.coords.heading;
+        let heading = pos.coords.heading;
         const speed = pos.coords.speed;
         
+        if (heading === null || isNaN(heading)) {
+          if (riderRef.current && (riderRef.current.lat !== lat || riderRef.current.lng !== lng) && window.google?.maps?.geometry?.spherical) {
+            const prev = new window.google.maps.LatLng(riderRef.current.lat, riderRef.current.lng);
+            const curr = new window.google.maps.LatLng(lat, lng);
+            heading = window.google.maps.geometry.spherical.computeHeading(prev, curr);
+          } else {
+            heading = riderRef.current?.heading || 0;
+          }
+        }
+
         saveDeliveryPartnerLocation(lat, lng);
-        setRider({ lat, lng });
-        riderRef.current = { lat, lng };
+        setRider({ lat, lng, heading });
+        riderRef.current = { lat, lng, heading };
         
         // Throttle location POSTs to once every 5s and skip if one is already in-flight
         const now = Date.now();
@@ -302,6 +322,36 @@ const DeliveryTrackingMapComponent = ({
     if (decodedPath?.length) return decodedPath;
     return [];
   }, [decodedPath]);
+
+  const snappedRider = useMemo(() => {
+    if (!rider || !linePath?.length || !window.google) return rider;
+    
+    let closestDist = Infinity;
+    let closestPoint = rider;
+    let closestHeading = rider.heading || 0;
+
+    for (let i = 0; i < linePath.length - 1; i++) {
+      const p1 = linePath[i];
+      const p2 = linePath[i+1];
+      const pt1 = { lat: p1.lat(), lng: p1.lng() };
+      const pt2 = { lat: p2.lat(), lng: p2.lng() };
+      
+      const snapped = getClosestPointOnSegment(rider, pt1, pt2);
+      const dist = distanceMeters(rider, snapped);
+      
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestPoint = snapped;
+        closestHeading = window.google.maps.geometry.spherical.computeHeading(p1, p2);
+      }
+    }
+    
+    // Only snap if within 100 meters of the path
+    if (closestDist < 100) {
+      return { ...closestPoint, heading: closestHeading };
+    }
+    return rider;
+  }, [rider, linePath]);
 
   const riderMarkerIcon = useMemo(() => {
     if (!isLoaded || !window.google?.maps) return undefined;
@@ -518,12 +568,23 @@ const DeliveryTrackingMapComponent = ({
           fullscreenControl: false,
         }}
       >
-        {rider && (
-          <Marker
-            position={rider}
-            title="Your location"
-            icon={riderMarkerIcon}
-          />
+        {snappedRider && (
+          <OverlayView
+            position={snappedRider}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(width, height) => ({
+              x: -(width / 2),
+              y: -height,
+            })}
+          >
+            <div style={{
+              transform: `rotate(${snappedRider.heading || 0}deg)`,
+              transition: 'transform 0.3s ease-in-out',
+              transformOrigin: 'center bottom'
+            }}>
+              <img src={deliveryIcon} style={{ width: 44, height: 64, display: 'block' }} alt="rider" />
+            </div>
+          </OverlayView>
         )}
         {dest && (
           <Marker

@@ -15,7 +15,7 @@ export default function DeliveryReviewsPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await adminApi.delivery.getDeliveryReviews({ page, limit: 20 });
+      const res = await adminApi.getDeliveryReviews({ page, limit: 20 });
       if (res.data?.success) {
         setReviews(res.data.result.reviews || []);
         setPagination(res.data.result.pagination || { page: 1, total: 0, pages: 1 });

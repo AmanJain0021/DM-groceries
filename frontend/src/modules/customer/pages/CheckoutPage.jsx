@@ -32,6 +32,11 @@ import {
   Check,
   Contact2,
   Wallet,
+  ShieldCheck,
+  Leaf,
+  Info,
+  Navigation,
+  PencilLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -217,6 +222,18 @@ const CheckoutPage = () => {
   }, [cart.length === 0]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const paymentMethods = [
+    {
+      id: "online",
+      label: "Pay Online",
+      icon: CreditCard,
+      sublabel: "Pay securely via UPI, Cards, NetBanking",
+    },
+    {
+      id: "cash",
+      label: "Cash on Delivery",
+      icon: Wallet,
+      sublabel: "Pay via Cash/UPI on delivery",
+    },
     {
       id: "pending",
       label: "Pay after seller accepts",

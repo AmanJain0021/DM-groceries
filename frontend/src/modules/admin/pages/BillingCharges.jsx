@@ -25,6 +25,7 @@ const BillingCharges = () => {
         freeDeliveryThreshold: 0,
         baseCharge: 30,
         riderBasePayout: 30,
+        riderPayoutBonus: 0,
         baseDistance: 0.5,
         extraPerKm: 10,
         deliveryPartnerRatePerKm: 5,
@@ -53,6 +54,7 @@ const BillingCharges = () => {
                         ...prev,
                         baseCharge: s.customerBaseDeliveryFee ?? s.baseDeliveryCharge ?? prev.baseCharge,
                         riderBasePayout: s.riderBasePayout ?? s.customerBaseDeliveryFee ?? prev.riderBasePayout,
+                        riderPayoutBonus: s.riderPayoutBonus ?? prev.riderPayoutBonus,
                         baseDistance: s.baseDistanceCapacityKm ?? prev.baseDistance,
                         extraPerKm: s.incrementalKmSurcharge ?? prev.extraPerKm,
                         deliveryPartnerRatePerKm: s.deliveryPartnerRatePerKm ?? s.fleetCommissionRatePerKm ?? prev.deliveryPartnerRatePerKm,
@@ -77,12 +79,13 @@ const BillingCharges = () => {
                 adminApi.updateDeliveryFinanceSettings({
                     deliveryPricingMode: deliveryMode === 'fixed' ? 'fixed_price' : 'distance_based',
                     customerBaseDeliveryFee: config.baseCharge,
-                    riderBasePayout: config.baseCharge,
+                    riderBasePayout: config.riderBasePayout,
+                    riderPayoutBonus: config.riderPayoutBonus,
                     baseDeliveryCharge: config.baseCharge,
                     baseDistanceCapacityKm: config.baseDistance,
                     incrementalKmSurcharge: config.extraPerKm,
-                    deliveryPartnerRatePerKm: config.extraPerKm,
-                    fleetCommissionRatePerKm: config.extraPerKm,
+                    deliveryPartnerRatePerKm: config.deliveryPartnerRatePerKm,
+                    fleetCommissionRatePerKm: config.deliveryPartnerRatePerKm,
                     fixedDeliveryFee: config.fixedCharge,
                     handlingFeeStrategy: config.handlingFeeStrategy,
                     codEnabled: config.codEnabled,
@@ -281,6 +284,55 @@ const BillingCharges = () => {
 
                             <div className="mt-8 pt-6 border-t border-dashed border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Obsolete Return Delivery Commission field removed */}
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Rider Payout Settings */}
+                    <Card className="border-none shadow-xl ring-1 ring-slate-100 bg-white rounded-[32px] overflow-hidden">
+                        <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
+                                <Zap className="h-4 w-4 text-purple-500" />
+                                Rider Payout Settings
+                            </h3>
+                        </div>
+                        <div className="p-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rider Base Payout (₹)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={config.riderBasePayout}
+                                        onChange={(e) => handleInputChange('riderBasePayout', e.target.value)}
+                                        className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-black text-slate-900 outline-none focus:ring-2 focus:ring-purple-500/10 transition-all"
+                                    />
+                                    <p className="text-[10px] font-bold text-slate-400 italic">Base earning for the delivery boy per order.</p>
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Rider Bonus (₹)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={config.riderPayoutBonus}
+                                        onChange={(e) => handleInputChange('riderPayoutBonus', e.target.value)}
+                                        className="w-full px-5 py-4 bg-purple-50 border-none rounded-2xl text-sm font-black text-purple-900 outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
+                                    />
+                                    <p className="text-[10px] font-bold text-purple-600/70 italic">Special bonus added to every delivery (e.g., bad weather).</p>
+                                </div>
+                                {deliveryMode === 'distance' && (
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rider Per Km Rate (₹)</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={config.deliveryPartnerRatePerKm}
+                                            onChange={(e) => handleInputChange('deliveryPartnerRatePerKm', e.target.value)}
+                                            className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-black text-slate-900 outline-none focus:ring-2 focus:ring-purple-500/10 transition-all"
+                                        />
+                                        <p className="text-[10px] font-bold text-slate-400 italic">Earning per km beyond the free base radius.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </Card>

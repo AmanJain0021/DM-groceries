@@ -21,7 +21,7 @@ const generateToken = (admin) =>
   jwt.sign(
     { id: admin._id, role: "admin" },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" },
+    { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || "7d" },
   );
 
 function readBootstrapSecret(req) {

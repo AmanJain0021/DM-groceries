@@ -54,6 +54,8 @@ const LiveTrackingMap = memo(({
   riderName,
   riderPlate,
   riderPhone,
+  riderImage,
+  riderRating,
   riderLocation,
   sellerLocation,
   destinationLocation,
@@ -455,13 +457,13 @@ const LiveTrackingMap = memo(({
               <div className="relative">
                 <div className="h-10 w-10 rounded-full bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
                   <img
-                    src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60"
+                    src={riderImage || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60"}
                     alt="Rider"
                     className="h-full w-full object-cover"
                   />
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-primary-foreground text-[7px] font-bold px-1 py-0.5 rounded-full flex items-center gap-0.5">
-                  4.8 <Star size={5} fill="white" />
+                  {riderRating > 0 ? riderRating : 'New'} <Star size={5} fill="white" />
                 </div>
               </div>
               <div className="flex-1 min-w-0">

@@ -228,7 +228,7 @@ const Profile = () => {
             Rating
           </p>
           <p className="font-bold text-gray-900 text-lg flex justify-center items-center">
-            {user?.rating ? Number(user.rating).toFixed(1) : "N/A"} <span className="text-yellow-400 text-sm ml-1">★</span>
+            {user?.averageRating ? Number(user.averageRating).toFixed(1) : "N/A"} <span className="text-yellow-400 text-sm ml-1">★</span>
           </p>
         </div>
       </motion.div>

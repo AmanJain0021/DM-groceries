@@ -145,6 +145,11 @@ const settingSchema = new mongoose.Schema(
             default: 30,
             min: 0,
         },
+        riderPayoutBonus: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
         baseDeliveryCharge: {
             type: Number,
             default: 30,

@@ -16,7 +16,7 @@ import { uploadToCloudinary } from "../services/mediaService.js";
 
 const generateToken = (seller) =>
     jwt.sign({ id: seller._id, role: "seller" }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
+        expiresIn: process.env.SELLER_JWT_EXPIRES_IN || "365d",
     });
 
 const SELLER_DOCUMENT_FIELDS = {

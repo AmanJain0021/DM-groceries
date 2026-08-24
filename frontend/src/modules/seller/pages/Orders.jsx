@@ -134,6 +134,8 @@ const Orders = () => {
                     ? 'Cash on Delivery'
                     : 'Online Paid',
                 activeSellerOtp: order.activeSellerOtp,
+                pricing: order.pricing || {},
+                paymentBreakdown: order.paymentBreakdown || {},
             }));
 
             setOrders(formattedOrders);
@@ -799,9 +801,9 @@ const Orders = () => {
                                             </div>
                                             <div>
                                                 <h3 className="text-base font-black text-slate-900">Order Details</h3>
-                                                <div className="flex items-center space-x-2 mt-0.5">
-                                                    <Badge variant={getStatusColor(selectedOrder.status)} className="text-[10px] font-black uppercase tracking-widest px-1.5 py-0">{selectedOrder.status}</Badge>
-                                                    <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">#{selectedOrder.id}</span>
+                                                <div className="flex items-center space-x-2 mt-0.5 min-w-0">
+                                                    <Badge variant={getStatusColor(selectedOrder.status)} className="text-[10px] font-black uppercase tracking-widest px-1.5 py-0 shrink-0">{selectedOrder.status}</Badge>
+                                                    <span className="text-xs font-bold text-slate-600 uppercase tracking-widest truncate block max-w-[120px] sm:max-w-xs">#{selectedOrder.id}</span>
                                                 </div>
                                                 {(selectedOrder.date || selectedOrder.time) && (
                                                     <p className="text-[11px] font-bold text-slate-500 mt-1.5 flex items-center gap-1.5">
@@ -869,12 +871,24 @@ const Orders = () => {
                                                     <div className="space-y-2">
                                                         <div className="flex justify-between text-xs">
                                                             <span className="font-bold text-slate-600">Subtotal</span>
-                                                            <span className="font-black text-slate-900">₹{(selectedOrder.total - 10).toFixed(2)}</span>
+                                                            <span className="font-black text-slate-900">₹{((selectedOrder.paymentBreakdown?.productSubtotal) ?? (selectedOrder.pricing?.subtotal) ?? 0).toFixed(2)}</span>
                                                         </div>
                                                         <div className="flex justify-between text-xs">
                                                             <span className="font-bold text-slate-600">Delivery Fee</span>
-                                                            <span className="font-black text-brand-600">₹10.00</span>
+                                                            <span className="font-black text-brand-600">₹{((selectedOrder.paymentBreakdown?.deliveryFeeCharged) ?? (selectedOrder.pricing?.deliveryFee) ?? 0).toFixed(2)}</span>
                                                         </div>
+                                                        {(((selectedOrder.paymentBreakdown?.handlingFeeCharged) ?? 0) > 0) && (
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className="font-bold text-slate-600">Handling Fee</span>
+                                                                <span className="font-black text-slate-900">₹{selectedOrder.paymentBreakdown.handlingFeeCharged.toFixed(2)}</span>
+                                                            </div>
+                                                        )}
+                                                        {(((selectedOrder.paymentBreakdown?.discountTotal) ?? (selectedOrder.pricing?.discount) ?? 0) > 0) && (
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className="font-bold text-green-600">Discount</span>
+                                                                <span className="font-black text-green-600">-₹{((selectedOrder.paymentBreakdown?.discountTotal) ?? (selectedOrder.pricing?.discount) ?? 0).toFixed(2)}</span>
+                                                            </div>
+                                                        )}
                                                         <div className="h-px bg-primary/10 my-2" />
                                                         <div className="flex justify-between text-sm">
                                                             <span className="font-black text-slate-900">Total</span>

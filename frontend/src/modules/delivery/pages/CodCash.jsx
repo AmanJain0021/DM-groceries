@@ -305,19 +305,23 @@ const CodCash = () => {
               {(Array.isArray(data.toCollect) ? data.toCollect : []).slice(0, 20).map((row) => (
                 <div
                   key={`collect-${row.orderId}`}
-                  className="flex items-center justify-between rounded-xl border border-orange-100 bg-orange-50/40 p-3"
+                  className="flex items-start justify-between gap-2 rounded-xl border border-orange-100 bg-orange-50/40 p-3"
                 >
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">Order #{row.orderId}</p>
-                    <p className="text-xs text-gray-600">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 truncate" title={`Order #${row.orderId}`}>
+                      Order #{row.orderId}
+                    </p>
+                    <p className="text-xs text-gray-600 truncate">
                       Collect {RUPEE}
                       {safeMoney(row.amountGross).toLocaleString()} (gross)
                     </p>
                   </div>
-                  <p className="text-sm font-extrabold text-orange-700">
-                    {RUPEE}
-                    {safeMoney(row.amountNetExpected).toLocaleString()}
-                  </p>
+                  <div className="shrink-0 text-right mt-0.5">
+                    <p className="text-sm font-extrabold text-orange-700">
+                      {RUPEE}
+                      {safeMoney(row.amountNetExpected).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               ))}
 
@@ -341,16 +345,20 @@ const CodCash = () => {
               {(Array.isArray(data.toRemit) ? data.toRemit : []).slice(0, 20).map((row) => (
                 <div
                   key={`remit-${row.orderId}`}
-                  className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-3"
+                  className="flex items-start justify-between gap-2 rounded-xl border border-gray-100 bg-white p-3"
                 >
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">Order #{row.orderId}</p>
-                    <p className="text-xs text-gray-500">Submit to platform (net)</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 truncate" title={`Order #${row.orderId}`}>
+                      Order #{row.orderId}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">Submit to platform (net)</p>
                   </div>
-                  <p className="text-sm font-extrabold text-gray-900">
-                    {RUPEE}
-                    {safeMoney(row.amountNetPending).toLocaleString()}
-                  </p>
+                  <div className="shrink-0 text-right mt-0.5">
+                    <p className="text-sm font-extrabold text-gray-900">
+                      {RUPEE}
+                      {safeMoney(row.amountNetPending).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               ))}
 
